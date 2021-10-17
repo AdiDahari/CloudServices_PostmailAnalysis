@@ -1,0 +1,77 @@
+<div class="col-lg-6 col-md-12">
+  <div class="card">
+    <div class="card-header card-header-tabs card-header-primary">
+      <div class="nav-tabs-navigation">
+        <div class="nav-tabs-wrapper">
+          <span class="nav-tabs-title">Tracked Packages:</span>
+          <ul class="nav nav-tabs" data-tabs="tabs">
+            <li class="nav-item">
+              <a class="nav-link active" href="#dan" data-toggle="tab">
+                <i class="material-icons">location_on</i> Dan
+                <div class="ripple-container"></div>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#central" data-toggle="tab">
+                <i class="material-icons">location_on</i> Cenrtal
+                <div class="ripple-container"></div>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#haifa" data-toggle="tab">
+                <i class="material-icons">location_on</i> Haifa
+                <div class="ripple-container"></div>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#southern" data-toggle="tab">
+                <i class="material-icons">location_on</i> Southern
+                <div class="ripple-container"></div>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="tab-content">
+        <div class="tab-pane active" id="dan">
+          <table class="table">
+            <tbody>
+              <% Object.keys(status['Dan']['packages']).forEach(key => { %>
+              <%- include("package", {key: key}); %>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <div class="tab-pane" id="central">
+          <table class="table">
+            <tbody>
+              <% Object.keys(status['Central']['packages']).forEach(key => { %>
+                <%- include("package", {key: key}); %>
+                <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <div class="tab-pane" id="haifa">
+          <table class="table">
+            <tbody>
+              <% Object.keys(status['Haifa']['packages']).forEach(key => { %>
+                <%- include("package", {key: key}); %>
+                <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <div class="tab-pane" id="southern">
+          <table class="table">
+            <tbody>
+              <% Object.keys(status['Southern']['packages']).forEach(key => { %>
+                <%- include("package", {key: key}); %>
+                <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

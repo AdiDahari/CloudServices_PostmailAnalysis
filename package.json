@@ -1,0 +1,30 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ShipmentSimualtor.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "nodemon overview.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/storage": "^5.15.0",
+    "bigml": "^1.6.0",
+    "ejs": "^3.1.6",
+    "express": "^4.17.1",
+    "faker": "^5.5.3",
+    "jimp": "^0.16.1",
+    "mongodb": "^4.1.3",
+    "node-rdkafka": "^2.11.0",
+    "nodemon": "^2.0.13",
+    "qrcode": "^1.3.2",
+    "qrcode-reader": "^1.0.4",
+    "redis": "^3.1.2",
+    "socket.io": "^4.2.0",
+    "ws": "^8.2.3"
+  }
+}
