@@ -15,13 +15,16 @@ The above copyright notice and this permission notice shall be included in all c
 <head>
   <%- include("../partials/headers") %>
     <!--ariel ws-->
-    <script src="../../node_modules/socket.io/client-dist/socket.io.js"></script>
+    <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"
+      integrity="sha384-KAZ4DtjNhLChOB/hxXuKqhMLYvx3b5MlT55xPEiNmREKRzeEm+RVPlTnAn0ajQNs"
+      crossorigin="anonymous"></script>
     <script>
       var socket = io.connect();
       function setWs() {
-        socket.on('newdata', function (msg) {
-          var element = document.getElementById(msg.District);
-          element.innerText = msg.value;
+        socket.on('update', function (msg) {
+          var element = document.getElementById(msg.title);
+          element.innerText = msg.amount + ' Packages';
+          
         })
       }
     </script>
@@ -39,10 +42,10 @@ The above copyright notice and this permission notice shall be included in all c
                 <!--start-->
                 <% for(const i in status){ %>
                   <%- include("../partials/card",status[i]); %>
-                <% }; %>
+                    <% }; %>
                       <!--end-->
               </div>
-              <div class="row">
+              <div class="row" id="tasksCard">
                 <%- include("../partials/taskscard") %>
               </div>
             </div>

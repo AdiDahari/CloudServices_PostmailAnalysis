@@ -6,25 +6,25 @@
           <span class="nav-tabs-title">Tracked Packages:</span>
           <ul class="nav nav-tabs" data-tabs="tabs">
             <li class="nav-item">
-              <a class="nav-link active" href="#dan" data-toggle="tab">
+              <a class="nav-link active" href="#DanTable" data-toggle="tab">
                 <i class="material-icons">location_on</i> Dan
                 <div class="ripple-container"></div>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#central" data-toggle="tab">
+              <a class="nav-link" href="#CentralTable" data-toggle="tab">
                 <i class="material-icons">location_on</i> Cenrtal
                 <div class="ripple-container"></div>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#haifa" data-toggle="tab">
+              <a class="nav-link" href="#HaifaTable" data-toggle="tab">
                 <i class="material-icons">location_on</i> Haifa
                 <div class="ripple-container"></div>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#southern" data-toggle="tab">
+              <a class="nav-link" href="#SouthernTable" data-toggle="tab">
                 <i class="material-icons">location_on</i> Southern
                 <div class="ripple-container"></div>
               </a>
@@ -35,7 +35,7 @@
     </div>
     <div class="card-body">
       <div class="tab-content">
-        <div class="tab-pane active" id="dan">
+        <div class="tab-pane active" id="DanTable">
           <table class="table">
             <tbody>
               <% Object.keys(status['Dan']['packages']).forEach(key => { %>
@@ -44,7 +44,7 @@
             </tbody>
           </table>
         </div>
-        <div class="tab-pane" id="central">
+        <div class="tab-pane" id="CentralTable">
           <table class="table">
             <tbody>
               <% Object.keys(status['Central']['packages']).forEach(key => { %>
@@ -53,7 +53,7 @@
             </tbody>
           </table>
         </div>
-        <div class="tab-pane" id="haifa">
+        <div class="tab-pane" id="HaifaTable">
           <table class="table">
             <tbody>
               <% Object.keys(status['Haifa']['packages']).forEach(key => { %>
@@ -62,7 +62,7 @@
             </tbody>
           </table>
         </div>
-        <div class="tab-pane" id="southern">
+        <div class="tab-pane" id="SouthernTable">
           <table class="table">
             <tbody>
               <% Object.keys(status['Southern']['packages']).forEach(key => { %>

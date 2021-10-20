@@ -26,11 +26,11 @@ stream.on('error', (err) => {
 });
 
 function queueRandomPackage() { /* This function generates a random package information */
-    const id = getRandomTrackingId()    
-    const cart = getRandomItems()       
+    const id = getRandomTrackingId()
+    const cart = getRandomItems()
     const size = getRandomSize(cart)
     const tax = getRandomTax(cart)
-    const city = getRandomCity()        
+    const city = getRandomCity()
     const address = getRandomAddress(city[1])
     const event = {
         TrackID: id,
@@ -42,9 +42,11 @@ function queueRandomPackage() { /* This function generates a random package info
     }
     const success = stream.write(Buffer.from(JSON.stringify(event)))
     if (success) {
-        generateQR(event)
-        setTimeout(() => {uploadFile(event.TrackID)}, arrivalDelays[event.District] * 1000)
-        
+        // generateQR(event)
+        // setTimeout(() => {
+        //     uploadFile(event.TrackID)
+        // }, arrivalDelays[event.District] * 1000)
+
 
         console.log(JSON.stringify(event))
     } else {
@@ -53,7 +55,7 @@ function queueRandomPackage() { /* This function generates a random package info
 }
 
 /* Tracking Number in the form: [A-Z]^2 * [0-9]^8 (regex) */
-function getRandomTrackingId() {    
+function getRandomTrackingId() {
     const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     var number = 0
     for (var i = 0; i < 8; i++) {
@@ -63,14 +65,22 @@ function getRandomTrackingId() {
 }
 
 /* Items generated using faker API (for more information about faker: https://fakercloud.com/api) */
-function getRandomItems() { 
-    var amount = Math.floor(Math.random() * 3) + 1
+function getRandomItems() {
+    var n = Math.floor(Math.random() * 3) + 2
     var cart = []
-    for (var i = 0; i < amount; i++) {
-        cart[i] = {
-            name: faker.commerce.productName(),
-            amount: Math.floor(Math.random() * 3 + 1),
-            price: parseFloat(faker.commerce.price(1, 150))
+    for (var i = 0; i < n; i++) {
+        var name = faker.commerce.product()
+        let flag = false
+        cart.forEach(i => {
+            if (i.name == name) flag = true
+        })
+        if (flag) --i
+        else {
+            cart[i] = {
+                name: name,
+                amount: Math.floor(Math.random() * 3 + 1),
+                price: parseFloat(faker.commerce.price(1, 150))
+            }
         }
     }
     return cart
@@ -119,7 +129,7 @@ function getRandomCity() {
 /* using qrcode API. for more information: https://www.npmjs.com/package/qrcode */
 const generateQR = async post => {
     try {
-        await qr.toFile(__dirname + `/images/Staging/${post.TrackID}.png`, JSON.stringify(post),{width:400,color:{dark: '#000000', light:'#f8f9f5'}})
+        await qr.toFile(__dirname + `/images/Staging/${post.TrackID}.png`, JSON.stringify(post), { width: 400, color: { dark: '#000000', light: '#f8f9f5' } })
     } catch (err) { throw err }
 }
 
@@ -131,7 +141,7 @@ setInterval(() => {
 /* Uploading the generated QR to Firebase Storage */
 const uploadFile = async (tid) => {
     let bucketName = 'gs://bigdata-6c44f.appspot.com'
-    let fileName = __dirname +`/images/Staging/${tid}.png`
+    let fileName = __dirname + `/images/Staging/${tid}.png`
     await storage.bucket(bucketName).upload(fileName, {
         gzip: true,
         destination: tid + '.png',

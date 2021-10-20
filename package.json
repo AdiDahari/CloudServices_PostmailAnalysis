@@ -14,9 +14,11 @@
   "dependencies": {
     "@google-cloud/storage": "^5.15.0",
     "bigml": "^1.6.0",
+    "chart.js": "^3.5.1",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "faker": "^5.5.3",
+    "frequent-itemset": "^1.0.5",
     "jimp": "^0.16.1",
     "mongodb": "^4.1.3",
     "node-rdkafka": "^2.11.0",
