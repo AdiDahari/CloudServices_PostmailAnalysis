@@ -7,14 +7,16 @@
     "test": "tests"
   },
   "scripts": {
-    "start": "nodemon overview.js"
+    "start-hot": "nodemon hot.js",
+    "start-cold": "node cold.js",
+    "start-shipping": "node ShipmentSimulator.js"
   },
-  "author": "",
+  "author": "Adi Dahari",
   "license": "ISC",
   "dependencies": {
     "@google-cloud/storage": "^5.15.0",
     "bigml": "^1.6.0",
-    "chart.js": "^3.5.1",
+    "csv-writer": "^1.6.0",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "faker": "^5.5.3",

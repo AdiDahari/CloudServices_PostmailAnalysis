@@ -35,10 +35,6 @@ const getFromFirebase = async () => {
     })
 }
 
-/* Retrieving delivered packages from firebase - as QRCode png images */
-setInterval(() => {
-    getFromFirebase()
-}, 10000)
 
 
 /* Decoding the QR image to a JSON */
@@ -52,19 +48,17 @@ const decodeQR = (path, name) => {
         qr.callback = async function (err, value) {
             var delimeter = name.indexOf('.')
             fileName = name.substr(0, delimeter)
-            console.log('---' + fileName + '---')
             if (err || !value.result) {
                 await getFromRedis(name)
             }
             else {
                 const pack = JSON.parse(value.result)
-                console.log(`got from QR\n`, pack, '\n')
+                console.log(`${pack.TrackID}\tgot from QR`)
 
                 uploadMongo(pack)
             }
             redisClient.del(`delivered_${fileName}`, (err, reply) => {
                 if (err) console.error(err)
-                else console.log(`delivered_${fileName} deleted from REDIS`)
             })
         }
         qr.decode(image.bitmap);
@@ -73,7 +67,7 @@ const decodeQR = (path, name) => {
 }
 
 /* Retrieve package information if QR decoding fails */
-const getFromRedis = async(name) => {
+const getFromRedis = async (name) => {
     var delimeter = name.indexOf('.')
     name = name.substr(0, delimeter)
     await redisClient.get(`delivered_${name}`, (err, reply) => {
@@ -83,7 +77,7 @@ const getFromRedis = async(name) => {
             if (pack == null) console.error('REDIS: null object: ', name)
             else {
                 uploadMongo(pack)
-                console.log(`Got from REDIS:\t${pack.TrackID}`)
+                console.log(`${pack.TrackID}\tGot from REDIS`)
             }
         }
     })
@@ -96,7 +90,29 @@ const uploadMongo = (doc) => {
         if (error) console.error(error)
         else {
             console.log('[+]\t', doc.TrackID, ' insereted to mongo')
-            console.log(result.acknowledged)
         }
     })
 }
+
+const main = async () => {
+    /* Cleaning Firebase Storage */
+    const storage = new Storage({
+        keyFilename: 'bigdata-6c44f-firebase-adminsdk-sgery-cabb327f0e.json',
+    });
+    let bucketName = 'gs://bigdata-6c44f.appspot.com'
+
+    const files = await storage.bucket(bucketName).getFiles('*')
+
+    files[0].forEach(async (file) => {  
+        file.delete()
+    })
+
+    console.log('Cold Connection is Ready!')
+    /* Retrieving delivered packages from firebase - as QRCode png images */
+    setInterval(() => {
+        getFromFirebase()
+    }, 10000)
+
+}
+
+main()

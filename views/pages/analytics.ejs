@@ -16,6 +16,7 @@ The above copyright notice and this permission notice shall be included in all c
   <%- include("../partials/headers") %>
     <!--ariel ws-->
     <script src="../../node_modules/socket.io/client-dist/socket.io.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css"></script>
     <script>
       var socket = io.connect();
       function setWs() {
@@ -35,12 +36,31 @@ The above copyright notice and this permission notice shall be included in all c
         <%- include("../partials/navbar") %>
           <div class="content">
             <div class="container-fluid">
-              <div class="row">
-        
-              </div>
-              <div class="row">
-                
-              </div>
+              <table id="fis" class="display" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>Sets</th>
+                    <th>Support</th>
+                    <th>Support Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% fis.forEach(e => { %>
+                  <tr>
+                    <td><%= e.set %></td>
+                    <td><%= e.support %></td>
+                    <td><%= e.supportCount %></td>
+                  </tr>
+                  <% }); %>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <!-- <th>Sets</th>
+                    <th>Support</th>
+                    <th>Support Count</th> -->
+                  </tr>
+                </tfoot>
+              </table>
             </div>
           </div>
           <%- include("../partials/footer") %>

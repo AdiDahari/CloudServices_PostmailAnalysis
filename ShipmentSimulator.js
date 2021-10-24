@@ -9,6 +9,7 @@ const arrivalDelays = { /* Each District has a different delivery time (in ms, m
     Haifa: 6,
     Southern: 7
 }
+
 const storage = new Storage({   /* Connecting to Firebase Storage using the JSON key file */
     keyFilename: 'bigdata-6c44f-firebase-adminsdk-sgery-cabb327f0e.json',
 });
@@ -42,10 +43,10 @@ function queueRandomPackage() { /* This function generates a random package info
     }
     const success = stream.write(Buffer.from(JSON.stringify(event)))
     if (success) {
-        // generateQR(event)
-        // setTimeout(() => {
-        //     uploadFile(event.TrackID)
-        // }, arrivalDelays[event.District] * 1000)
+        generateQR(event)
+        setTimeout(() => {
+            uploadFile(event.TrackID)
+        }, arrivalDelays[event.District] * 1000)
 
 
         console.log(JSON.stringify(event))
@@ -67,9 +68,10 @@ function getRandomTrackingId() {
 /* Items generated using faker API (for more information about faker: https://fakercloud.com/api) */
 function getRandomItems() {
     var n = Math.floor(Math.random() * 3) + 2
+    const products = ['Hat', 'Shoes', 'Pants', 'Shirt', 'Gloves', 'Coat', 'Socks']
     var cart = []
     for (var i = 0; i < n; i++) {
-        var name = faker.commerce.product()
+        var name = products[Math.floor(Math.random() * products.length)] /*faker.commerce.product()*/
         let flag = false
         cart.forEach(i => {
             if (i.name == name) flag = true
@@ -78,7 +80,7 @@ function getRandomItems() {
         else {
             cart[i] = {
                 name: name,
-                amount: Math.floor(Math.random() * 3 + 1),
+                amount: Math.floor(Math.random() * 2 + 1),
                 price: parseFloat(faker.commerce.price(1, 150))
             }
         }
@@ -92,8 +94,8 @@ function getRandomSize(cart) { //  1 = small, 2 = medium, 3 = big
     for (var i in cart) {
         size += cart[i].amount
     }
-    if (size < 3) return '1'
-    else if (size < 7) return '2'
+    if (size <= 5) return '1'
+    else if (size <= 7) return '2'
     else return '3'
 }
 
@@ -133,10 +135,7 @@ const generateQR = async post => {
     } catch (err) { throw err }
 }
 
-/* Generating and send random packages as a JSON via Kafka write stream */
-setInterval(() => {
-    queueRandomPackage();
-}, 3000);
+
 
 /* Uploading the generated QR to Firebase Storage */
 const uploadFile = async (tid) => {
@@ -155,3 +154,22 @@ const uploadFile = async (tid) => {
         console.error(error)
     }
 };
+
+const main = async () => {
+
+    /* Cleaning old QR files from Staging directory */
+    await fs.readdir('images/Staging', (err, files) => {
+        files.forEach(f => {
+            fs.unlink('images/Staging/' + f, (err) => {
+                if (err) console.log(err)
+            })
+        })
+    })
+    console.log('Shipment Simulator is Ready!')
+    /* Generating and send random packages as a JSON via Kafka write stream */
+    setInterval(() => {
+        queueRandomPackage();
+    }, 1000);
+}
+
+main()

@@ -1,0 +1,27 @@
+<div class="row" id="chart">
+    <h3><%= arg.title %></h3>
+    <canvas id="sizeChart" width="450" height="400"></canvas>
+    <script>
+      var sizes = <%= arg.sizes %>
+      let chart = document.getElementById('sizeChart').getContext('2d')               
+      let sizeChart = new Chart(chart, {
+        type: 'bar',
+        data: {
+          labels: ['Small', 'Medium', 'Big'],
+          datasets:[{
+            label:'Sizes',
+            data: sizes,
+            backgroundColor:['green', 'yellow', 'red']
+          }]
+        },
+        options: {
+          responsive: false,
+          maintainAspectRatio: false
+        }
+      });
+      // }
+      
+      
+
+    </script>
+  </div>

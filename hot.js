@@ -4,7 +4,9 @@ const SocketIO = require('socket.io')
 const app = express();
 const server = express().use(app).listen(3000, ()=>{
     console.log(`Listening Socket on http://localhost:3000`);
+    
 })
+
 const io = SocketIO(server)
 io.on('connection', (socket) =>{
     socket.on('update', (msg) => {
@@ -13,12 +15,12 @@ io.on('connection', (socket) =>{
     })
 })
 const Kafka = require('node-rdkafka');
+const analyticsTables = require("./analyticsTables");
 const broker = require('redis').createClient()
 const client = broker.duplicate()
 app.use(express.static('public'))
 app.set('view engine', 'ejs')
-
-
+const analytics = require('./analyticsTables')
 /* Subscribing to each district's channel - redis subscription */
 client.subscribe(['Dan', 'Central', 'Haifa', 'Southern'])
 
@@ -28,6 +30,36 @@ const arrivalDelays = {
     Central: 5,
     Haifa: 6,
     Southern: 7
+}
+/* Returns the average size within the given district */
+const getSizeAvg = (sizes) => {
+    var avg = 0, count = 0
+    for(var i = 0; i < 3; ++i){
+        avg += (i + 1) * (sizes[i])
+        count += sizes[i]
+    }
+    if(count == 0) return 'None'
+    switch(Math.round(avg /= count)){
+        case 1: return 'Small'
+        case 2: return 'Medium'
+        case 3: return 'Big'
+    }
+}
+
+/* Returns the average tax stage within the given district */
+const getTaxAvg = (taxes) => {
+    var avg = 0, count = 0
+    for(var i = 0; i < 3; ++i){
+        avg += i * (taxes[i])
+        count += taxes[i]
+    }
+    
+    if(count == 0) return 'None'
+    switch(Math.round(avg /= count)){
+        case 0: return 'Free'
+        case 1: return 'VAT'
+        case 2: return 'Full'
+    }
 }
 
 /* Main data of districts' packages on the way */
@@ -76,7 +108,7 @@ const kafkaConsumer = Kafka.KafkaConsumer({
 kafkaConsumer.connect()
 
 kafkaConsumer.on('ready', () => {
-    console.log('consumer ready...')
+    console.log('Hot Connection is Ready!')
     kafkaConsumer.subscribe(['packages'])
     kafkaConsumer.consume()
 }).on('data', async(data) => {
@@ -99,54 +131,24 @@ client.on('message', async(channel, message) => {
         if(err) console.error(err)
     })
     io.emit('update', status[channel])
-    console.log(`[+]${channel}: ${pack.TrackID} (delay: ${delay})`)
-    console.log(`Number of pakages in ${channel}: ${status[channel].amount}`)
+    console.log(`[+]\t${channel}: id: ${pack.TrackID}, size: ${pack.Size}, tax: ${pack.Tax}`)
     home    // This call is refreshing the dashboard on new data
-    
+    charts
     setTimeout(() => {  // For each package, according to it's district, timing the semi-randomized arrival time
         delete status[channel]['packages'][pack.TrackID]
         --status[channel]['sizes'][pack.Size - 1]
         --status[channel]['taxes'][pack.Tax]
         --status[channel]['amount']
-        // broker.PSETEX('delivered_'+pack.TrackID, 40000, JSON.stringify(pack))
-        console.log(`[-]${channel}: ${pack.TrackID}`)
-        console.log(`Number of pakages in ${channel}: ${status[channel].amount}`)
+        broker.PSETEX('delivered_'+pack.TrackID, 40000, JSON.stringify(pack))
+        console.log(`[-]\t${channel}: ${pack.TrackID}`)
         io.emit('update', status[channel])
         home
-
+        charts
     }, delay)
 })
 
-/* Returns the number of packages, within the given district, of each size as an array: [<#small>, <#medium>, <#big>] */
-const getSizes = (district) => {
-    return status[district]['sizes']
-}
 
-/* Returns the number of packages, within the given district, of each tax stage as an array: [<#none>, <#vat>, <#full>] */
-const getTaxes = (district) => {
-    return status[district]['taxes']
-}
 
-/* Returns the average size within the given district */
-const getSizeAvg = (district) => {
-    var avg = 0, count = 0
-    for(var i = 0; i < 3; ++i){
-        avg += (i + 1) * (status[district]['sizes'][i])
-        count += status[district]['sizes'][i]
-    }
-    return count == 0? 0 : avg /= count
-}
-
-/* Returns the average tax stage within the given district */
-const getTaxAvg = (district) => {
-    var avg = 0, count = 0
-    for(var i = 0; i < 3; ++i){
-        avg += i * (status[district]['taxes'][i])
-        count += status[district]['taxes'][i]
-    }
-    
-    return count == 0? 0 : avg /= count
-}
 
 /*Express - Rendering the main page - Dashboard */
 const home = app.get('/', (req, res) => {
@@ -154,22 +156,17 @@ const home = app.get('/', (req, res) => {
 })
 
 /*Express - Rendering the charts page */
-app.get('/charts', (req,res) => {
-    res.render("pages/charts", {status})
+const charts = app.get('/charts', (req,res) => {
+    res.render("pages/charts", {status,getSizeAvg, getTaxAvg})
 })
 
 /*Express - Rendering the analytics page */
-app.get('/analytics', (req,res) => {
-    res.render("pages/analytics", {status})
-})
+app.get('/analytics', analytics)
 
 /* ---------------TESTS------------------- */
 app.get('/tests', (req, res) => {
     res.sendFile(__dirname +'/views/tests.html')
 })
 
-io.on('log', (msg) => {
-    console.log(msg)
-})
 
 
