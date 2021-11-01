@@ -45,13 +45,19 @@ The above copyright notice and this permission notice shall be included in all c
                   </tr>
                 </thead>
                 <tbody>
-                  <% fis.forEach(e => { %>
-                  <tr>
-                    <td><%= e.set %></td>
-                    <td><%= e.support %></td>
-                    <td><%= e.supportCount %></td>
-                  </tr>
-                  <% }); %>
+                  <% fis.forEach(e=> { %>
+                    <tr>
+                      <td>
+                        <%= e.set %>
+                      </td>
+                      <td>
+                        <%= e.support %>
+                      </td>
+                      <td>
+                        <%= e.count %>
+                      </td>
+                    </tr>
+                    <% }); %>
                 </tbody>
                 <tfoot>
                   <tr>

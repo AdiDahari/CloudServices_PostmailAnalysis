@@ -1,8 +1,13 @@
+/**
+ * This is the Package Generator which simulates the shipping process
+ */
+
 const Kafka = require('node-rdkafka')
 const faker = require('faker')
 const qr = require('qrcode')
 const { Storage } = require('@google-cloud/storage');
 const fs = require('fs');
+const { exit } = require('process');
 const arrivalDelays = { /* Each District has a different delivery time (in ms, multiply by 1000)  */
     Dan: 4,
     Central: 5,
@@ -131,7 +136,7 @@ function getRandomCity() {
 /* using qrcode API. for more information: https://www.npmjs.com/package/qrcode */
 const generateQR = async post => {
     try {
-        await qr.toFile(__dirname + `/images/Staging/${post.TrackID}.png`, JSON.stringify(post), { width: 400, color: { dark: '#000000', light: '#f8f9f5' } })
+        await qr.toFile(__dirname + `/Staging/${post.TrackID}.png`, JSON.stringify(post), { width: 400, color: { dark: '#000000', light: '#f8f9f5' } })
     } catch (err) { throw err }
 }
 
@@ -140,7 +145,7 @@ const generateQR = async post => {
 /* Uploading the generated QR to Firebase Storage */
 const uploadFile = async (tid) => {
     let bucketName = 'gs://bigdata-6c44f.appspot.com'
-    let fileName = __dirname + `/images/Staging/${tid}.png`
+    let fileName = __dirname + `/Staging/${tid}.png`
     await storage.bucket(bucketName).upload(fileName, {
         gzip: true,
         destination: tid + '.png',
@@ -149,27 +154,40 @@ const uploadFile = async (tid) => {
         },
     })
     try {
-        fs.rmSync(__dirname + `/images/Staging/${tid}.png`)
+        fs.rmSync(__dirname + `/Staging/${tid}.png`)
     } catch (error) {
         console.error(error)
     }
 };
 
 const main = async () => {
-
-    /* Cleaning old QR files from Staging directory */
-    await fs.readdir('images/Staging', (err, files) => {
-        files.forEach(f => {
-            fs.unlink('images/Staging/' + f, (err) => {
-                if (err) console.log(err)
-            })
-        })
-    })
+    cleanup()
     console.log('Shipment Simulator is Ready!')
     /* Generating and send random packages as a JSON via Kafka write stream */
     setInterval(() => {
         queueRandomPackage();
     }, 1000);
+
+
+    /* Cleaning QR files from Staging directory on termination */
+
+}
+
+
+const cleanup = async () => {
+    await fs.readdir(__dirname + '/Staging', async (err, files) => {
+        if (err) console.error(__dirname + '/Staging')
+        await files.forEach(async (f) => {
+            await fs.unlink(__dirname + '/Staging/' + f, async (err) => {
+                if (err) console.log(__dirname + '/Staging')
+            })
+        })
+    })
+    console.log('cleanup finished')
 }
 
 main()
+
+
+
+

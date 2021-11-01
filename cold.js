@@ -1,3 +1,10 @@
+/**
+ * This is the cold connection for the batch analytics process.
+ * The main idea of arrived packages is the QR Codes downloaded from the Firebase Storage.
+ * as the QRReader is not very reliable, a connection to redis is achieved, for any information that couldn't be processed by QR Decoding.
+ * it handles the mongo uploading process as well as the QR scanning.
+ */
+
 const redisClient = require('redis').createClient()
 const { Storage } = require('@google-cloud/storage')
 const { MongoClient } = require('mongodb')
@@ -10,7 +17,7 @@ const mongoClient = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopo
 /* Connecting to Atlas MongoDB database and collection */
 mongoClient.connect(err => {
     if (err) {
-        console.error(err)
+        console.error('OOPS! ', err)
         mongoClient.close()
     }
 })
@@ -103,11 +110,12 @@ const main = async () => {
 
     const files = await storage.bucket(bucketName).getFiles('*')
 
-    files[0].forEach(async (file) => {  
+    files[0].forEach(async (file) => {
         file.delete()
     })
 
     console.log('Cold Connection is Ready!')
+
     /* Retrieving delivered packages from firebase - as QRCode png images */
     setInterval(() => {
         getFromFirebase()

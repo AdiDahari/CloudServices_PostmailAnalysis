@@ -1,6 +1,11 @@
 {
   "name": "project",
   "version": "1.0.0",
+  "nodemonConfig": {
+    "ignore": [
+      "analytics/data/*"
+    ]
+  },
   "description": "",
   "main": "ShipmentSimualtor.js",
   "directories": {
@@ -9,7 +14,9 @@
   "scripts": {
     "start-hot": "nodemon hot.js",
     "start-cold": "node cold.js",
-    "start-shipping": "node ShipmentSimulator.js"
+    "start-BigML": "node analytics/BigML.js",
+    "start": "start npm run start-hot && start npm run start-cold && npm run start-BigML",
+    "start-shipping": "node ShipmentSimulator/ShipmentSimulator.js"
   },
   "author": "Adi Dahari",
   "license": "ISC",
